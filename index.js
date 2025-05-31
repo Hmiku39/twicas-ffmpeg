@@ -194,12 +194,16 @@ app.post('/youtube-download-multi', (req, res) => {
         const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
 
         await new Promise((resolve, reject) => {
-          exec(cmd, (error) => {
-            if (error) return reject(`yt-dlp失敗：${url}`);
-            resolve();
-          });
-          console.log("エラー:", error);
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                console.error("❌ yt-dlp 実行エラー:", error.message);
+                console.error("stderr:", stderr);
+                return reject(`yt-dlp失敗：${url}`);
+                }
+                resolve();
+            });
         });
+
 
         results.push(`<li>✅ <a href="/videos_youtube/${safeDate}_${safeTitle}.mp4">${safeDate}_${safeTitle}.mp4</a></li>`);
       } catch (errMsg) {
