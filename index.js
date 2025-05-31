@@ -105,11 +105,13 @@ app.post('/download-multi', (req, res) => {
         const safeTitle = meta.title.normalize("NFC").replace(/[\/\\:*?"<>|]/g, '_');
         const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
         const filename = `${safeDate}_${safeTitle}.mp4`;
-        const outputPath = path.join(__dirname, 'videos', filename);
+        const outputPath = path.join('/mnt/video_storage/twicasting', filename);
 
-        if (!fs.existsSync(path.join(__dirname, 'videos'))) {
-          fs.mkdirSync(path.join(__dirname, 'videos'));
+        const twicasDir = '/mnt/video_storage/twicasting';
+        if (!fs.existsSync(twicasDir)) {
+            fs.mkdirSync(twicasDir, { recursive: true });
         }
+
 
         await new Promise((resolve, reject) => {
           const cmd = `ffmpeg -i "${meta.m3u8}" -c copy -bsf:a aac_adtstoasc "${outputPath}"`;
@@ -175,10 +177,11 @@ app.post('/youtube-download-multi', (req, res) => {
         const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
         const filename = `${safeDate}_${safeTitle}.%(ext)s`;
 
-        const outputDir = path.join(__dirname, 'videos_youtube');
+        const outputDir = path.join('/mnt/video_storage/youtube');
         if (!fs.existsSync(outputDir)) {
-          fs.mkdirSync(outputDir);
+            fs.mkdirSync(outputDir, { recursive: true });
         }
+
 
         const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
 
