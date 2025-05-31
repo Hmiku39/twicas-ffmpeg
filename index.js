@@ -5,19 +5,18 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3001;
+const PORT = 3000;
 
 // ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/videos', express.static(path.join(__dirname, 'videos')));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// ルート
+// HTMLフォームを出す
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-// メタデータ取得（タイトル＋投稿日）
+// メタデータ取得（yt-dlp -j）
 function getVideoMetadata(twicasUrl, callback) {
   exec(`yt-dlp -j "${twicasUrl}"`, (error, stdout, stderr) => {
     if (error) {
