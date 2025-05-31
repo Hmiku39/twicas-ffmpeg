@@ -155,4 +155,34 @@ app.post('/youtube-download-multi', (req, res) => {
   })();
 });
 
+// ツイキャス動画一覧
+app.get('/videos/twicasting-list', (req, res) => {
+  const dir = path.join(__dirname, 'videos');
+  fs.readdir(dir, (err, files) => {
+    if (err) return res.send('ディレクトリ読み込みエラー');
+
+    const videoFiles = files.filter(f =>
+      f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.mkv')
+    );
+
+    res.send(generateFileListHTML('/videos', videoFiles, 'TwitCasting'));
+  });
+});
+
+
+// YouTube動画一覧
+app.get('/videos_youtube/list', (req, res) => {
+  const dir = path.join(__dirname, 'videos_youtube');
+  fs.readdir(dir, (err, files) => {
+    if (err) return res.send('ディレクトリ読み込みエラー');
+
+    const videoFiles = files.filter(f =>
+      f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.mkv')
+    );
+
+    res.send(generateFileListHTML('/videos_youtube', videoFiles, 'YouTube'));
+  });
+});
+
+
 app.listen(PORT, () => console.log(`✅ 動画DLサーバー稼働中：http://localhost:${PORT}`));
