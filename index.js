@@ -157,7 +157,8 @@ app.post('/youtube-download-multi', (req, res) => {
 
 // ツイキャス動画一覧
 app.get('/videos/twicasting-list', (req, res) => {
-  const dir = path.join(__dirname, 'videos');
+//   const dir = path.join(__dirname, 'twicasting');
+    const dir = '/mnt/video_storage/twicasting'; 
   fs.readdir(dir, (err, files) => {
     if (err) return res.send('ディレクトリ読み込みエラー');
 
@@ -172,7 +173,8 @@ app.get('/videos/twicasting-list', (req, res) => {
 
 // YouTube動画一覧
 app.get('/videos_youtube/list', (req, res) => {
-  const dir = path.join(__dirname, 'videos_youtube');
+//   const dir = path.join(__dirname, 'videos_youtube');
+const dir = '/mnt/video_storage/youtube'; 
   fs.readdir(dir, (err, files) => {
     if (err) return res.send('ディレクトリ読み込みエラー');
 
