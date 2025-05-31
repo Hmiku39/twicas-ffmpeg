@@ -99,6 +99,76 @@ app.post('/download-multi', (req, res) => {
   })();
 });
 
+// YouTube UIページ
+app.get('/youtube', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'youtube.html'));
+});
+
+// YouTube動画を保存するディレクトリを公開
+app.use('/videos_youtube', express.static(path.join(__dirname, 'videos_youtube')));
+
+// YouTube複数ダウンロード処理
+app.post('/youtube-download-multi', (req, res) => {
+  const rawText = req.body.urls;
+  if (!rawText) return res.status(400).send('URLが空です');
+
+  const urls = rawText.split('\n').map(u => u.trim()).filter(Boolean);
+  if (urls.length === 0) return res.status(400).send('URLが見つかりません');
+
+  let results = [];
+
+  // 非同期IIFEで1件ずつ順次処理
+  (async function processUrls() {
+    for (const url of urls) {
+      try {
+        const meta = await new Promise((resolve, reject) => {
+          exec(`yt-dlp -j "${url}"`, (error, stdout) => {
+            if (error) return reject(`yt-dlpエラー：${url}`);
+            try {
+              const json = JSON.parse(stdout);
+              const title = json.title || 'no_title';
+              const rawDate = json.upload_date || '00000000';
+              const formattedDate = `${rawDate.slice(0,4)}-${rawDate.slice(4,6)}-${rawDate.slice(6)}`;
+              resolve({ title, date: formattedDate });
+            } catch (e) {
+              reject(`JSONエラー：${url}`);
+            }
+          });
+        });
+
+        const safeTitle = meta.title.normalize("NFC").replace(/[\/\\:*?"<>|]/g, '_');
+        const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
+        const filename = `${safeDate}_${safeTitle}.%(ext)s`;
+
+        const outputDir = path.join(__dirname, 'videos_youtube');
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir);
+        }
+
+        const cmd = `yt-dlp -o "${path.join(outputDir, filename)}" "${url}"`;
+
+        await new Promise((resolve, reject) => {
+          exec(cmd, (error) => {
+            if (error) return reject(`yt-dlp失敗：${url}`);
+            resolve();
+          });
+        });
+
+        results.push(`<li>✅ <a href="/videos_youtube/${safeDate}_${safeTitle}.mp4">${safeDate}_${safeTitle}.mp4</a></li>`);
+      } catch (errMsg) {
+        results.push(`<li>❌ ${errMsg}</li>`);
+      }
+    }
+
+    res.send(`
+      <h2>YouTubeダウンロード結果</h2>
+      <ul>${results.join('')}</ul>
+      <a href="/youtube" class="btn btn-secondary mt-3">← 戻る</a>
+    `);
+  })();
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`✅ サーバー起動中: http://localhost:${PORT}`);
