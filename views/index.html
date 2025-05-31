@@ -19,13 +19,12 @@
 <body>
   <div class="container">
     <h1 class="mb-4">TwitCasting アーカイブダウンローダー</h1>
-    <form action="/download" method="POST">
+    <form method="POST" action="/download-multi">
       <div class="mb-3">
-        <label for="url" class="form-label">ツイキャスURL:</label>
-        <input type="text" class="form-control" id="url" name="url" required>
+        <label for="urls" class="form-label">ツイキャス動画URL（1行1つずつ複数入力可）</label>
+        <textarea name="urls" id="urls" class="form-control" rows="10" placeholder="https://twitcasting.tv/user/movie/123456789&#10;https://twitcasting.tv/user/movie/987654321" required></textarea>
       </div>
-
-      <button type="submit" class="btn btn-primary">ダウンロード開始</button>
+      <button type="submit" class="btn btn-primary">一括ダウンロード開始</button>
     </form>
   </div>
 

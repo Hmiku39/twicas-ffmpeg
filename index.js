@@ -38,37 +38,67 @@ function getVideoMetadata(twicasUrl, callback) {
 }
 
 // ダウンロード処理
-app.post('/download', (req, res) => {
-  const twicasUrl = req.body.url;
+app.post('/download-multi', (req, res) => {
+  const rawText = req.body.urls;
+  if (!rawText) return res.status(400).send('URLが空です');
 
-  if (!twicasUrl) {
-    return res.status(400).send('URLは必須です。');
-  }
+  const urls = rawText.split('\n').map(u => u.trim()).filter(Boolean);
+  if (urls.length === 0) return res.status(400).send('URLが見つかりません');
 
-  getVideoMetadata(twicasUrl, (err, meta) => {
-    if (err || !meta) {
-      return res.send('❌ メタデータ取得に失敗しました。');
-    }
+  let results = [];
 
-    const safeTitle = meta.title.normalize('NFC').replace(/[\/\\:*?"<>|]/g, '_');
-    const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
-    const filename = `${safeDate}_${safeTitle}.mp4`;
-    const outputPath = path.join(__dirname, 'videos', filename);
+  // 直列で1件ずつ処理
+  (async function processUrls() {
+    for (const url of urls) {
+      try {
+        const meta = await new Promise((resolve, reject) => {
+          exec(`yt-dlp -j "${url}"`, (error, stdout) => {
+            if (error) return reject(`yt-dlpエラー：${url}`);
+            try {
+              const json = JSON.parse(stdout);
+              const title = json.title || 'no_title';
+              const rawDate = json.upload_date || '00000000';
+              const formattedDate = `${rawDate.slice(0,4)}-${rawDate.slice(4,6)}-${rawDate.slice(6)}`;
+              const m3u8Url = json.url;
+              resolve({ title, date: formattedDate, m3u8: m3u8Url });
+            } catch (e) {
+              reject(`JSONエラー：${url}`);
+            }
+          });
+        });
 
-    if (!fs.existsSync(path.join(__dirname, 'videos'))) {
-      fs.mkdirSync(path.join(__dirname, 'videos'));
-    }
+        const safeTitle = meta.title.normalize("NFC").replace(/[\/\\:*?"<>|]/g, '_');
+        const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
+        const filename = `${safeDate}_${safeTitle}.mp4`;
+        const outputPath = path.join(__dirname, 'videos', filename);
 
-    const cmd = `ffmpeg -i "${meta.m3u8}" -c copy -bsf:a aac_adtstoasc "${outputPath}"`;
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        console.error('ffmpeg error:', stderr);
-        return res.send(`❌ ダウンロード失敗<br><pre>${stderr}</pre>`);
+        if (!fs.existsSync(path.join(__dirname, 'videos'))) {
+          fs.mkdirSync(path.join(__dirname, 'videos'));
+        }
+
+        await new Promise((resolve, reject) => {
+          const cmd = `ffmpeg -i "${meta.m3u8}" -c copy -bsf:a aac_adtstoasc "${outputPath}"`;
+          exec(cmd, (error) => {
+            if (error) return reject(`ffmpeg失敗：${url}`);
+            resolve();
+          });
+        });
+
+        results.push(`<li>✅ <a href="/videos/${filename}">${filename}</a></li>`);
+      } catch (errMsg) {
+        results.push(`<li>❌ ${errMsg}</li>`);
       }
-      res.send(`✅ ダウンロード完了！<br><a href="/videos/${filename}">${filename}</a>`);
-    });
-  });
+    }
+
+    // 処理完了後、一覧を表示
+    res.send(`
+      <h2>ダウンロード結果</h2>
+      <ul>${results.join('')}</ul>
+      <a href="/">← 戻る</a>
+    `);
+  })();
 });
+
 
 app.listen(PORT, () => {
   console.log(`✅ サーバー起動中: http://localhost:${PORT}`);
