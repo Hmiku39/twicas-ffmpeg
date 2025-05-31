@@ -105,11 +105,14 @@ app.post('/download-multi', (req, res) => {
         const safeTitle = meta.title.normalize("NFC").replace(/[\/\\:*?"<>|]/g, '_');
         const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
         const filename = `${safeDate}_${safeTitle}.mp4`;
-        const outputPath = path.join('/mnt/video_storage/twicasting', filename);
+        // const outputPath = path.join('/mnt/video_storage/twicasting', filename);
+        const outputPath = path.join(__dirname, 'videos', filename);
 
-        const twicasDir = '/mnt/video_storage/twicasting';
-        if (!fs.existsSync(twicasDir)) {
-            fs.mkdirSync(twicasDir, { recursive: true });
+        if (!fs.existsSync(path.join(__dirname, 'videos'))) {
+          fs.mkdirSync(path.join(__dirname, 'videos'));
+        // const twicasDir = '/mnt/video_storage/twicasting';
+        // if (!fs.existsSync(twicasDir)) {
+        //     fs.mkdirSync(twicasDir, { recursive: true });
         }
 
 
@@ -177,9 +180,11 @@ app.post('/youtube-download-multi', (req, res) => {
         const safeDate = meta.date.replace(/[^0-9a-zA-Z_\-]/g, '_');
         const filename = `${safeDate}_${safeTitle}.%(ext)s`;
 
-        const outputDir = path.join('/mnt/video_storage/youtube');
+        // const outputDir = path.join('/mnt/video_storage/youtube');
+        const outputDir = path.join(__dirname, 'videos_youtube');
         if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
+            // fs.mkdirSync(outputDir, { recursive: true });
+            fs.mkdirSync(outputDir);
         }
 
 
