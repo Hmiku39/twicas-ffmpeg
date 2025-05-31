@@ -191,7 +191,9 @@ app.post('/youtube-download-multi', (req, res) => {
         }
 
 
-        const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
+        // const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
+        const cmd = `yt-dlp -f best -o "${path.join(outputDir, filename)}" "${normalizedUrl}"`;
+
 
         await new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
