@@ -7,6 +7,41 @@ const fs = require('fs');
 const app = express();
 const PORT = 3001;
 
+function generateFileListHTML(folderUrl, fileList, title) {
+  const listItems = fileList.map(file => {
+    const url = `${folderUrl}/${encodeURIComponent(file)}`;
+    return `
+      <li class="mb-3">
+        <strong>${file}</strong><br>
+        <video src="${url}" controls width="320" class="mt-1"></video><br>
+        <a href="${url}" class="btn btn-sm btn-outline-primary mt-1" download>ダウンロード</a>
+      </li>
+    `;
+  });
+
+  return `
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+      <meta charset="UTF-8">
+      <title>${title} 一覧</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <style>body { padding: 2rem; }</style>
+    </head>
+    <body>
+      <div class="container">
+        <h1 class="mb-4">${title} 保存動画一覧</h1>
+        <ul class="list-unstyled">
+          ${listItems.join('\n')}
+        </ul>
+        <a href="/" class="btn btn-secondary mt-4">← トップに戻る</a>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+
 // ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/videos', express.static(path.join(__dirname, 'videos')));
@@ -168,6 +203,25 @@ app.post('/youtube-download-multi', (req, res) => {
   })();
 });
 
+// ツイキャス動画一覧
+app.get('/videos/twicasting-list', (req, res) => {
+  const dir = path.join(__dirname, 'videos');
+  fs.readdir(dir, (err, files) => {
+    if (err) return res.send('ディレクトリ読み込みエラー');
+    const mp4Files = files.filter(f => f.endsWith('.mp4'));
+    res.send(generateFileListHTML('/videos', mp4Files, 'TwitCasting'));
+  });
+});
+
+// YouTube動画一覧
+app.get('/videos_youtube/list', (req, res) => {
+  const dir = path.join(__dirname, 'videos_youtube');
+  fs.readdir(dir, (err, files) => {
+    if (err) return res.send('ディレクトリ読み込みエラー');
+    const mp4Files = files.filter(f => f.endsWith('.mp4'));
+    res.send(generateFileListHTML('/videos_youtube', mp4Files, 'YouTube'));
+  });
+});
 
 
 app.listen(PORT, () => {
