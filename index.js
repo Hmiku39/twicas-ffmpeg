@@ -114,14 +114,20 @@ app.post('/download-multi', (req, res) => {
 
 
         await new Promise((resolve, reject) => {
-          const cmd = `ffmpeg -i "${meta.m3u8}" -c copy -bsf:a aac_adtstoasc "${outputPath}"`;
-          exec(cmd, (error) => {
-            if (error) return reject(`ffmpeg失敗：${url}`);
-            console.log("エラー:", error);
+        const cmd = `ffmpeg -i "${meta.m3u8}" -c copy -bsf:a aac_adtstoasc "${outputPath}"`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+            console.error("❌ ffmpeg 実行エラー:", error.message);
+            console.error("stderr:", stderr);
+            return reject(`ffmpeg失敗：${url}`);
+            }
+
+            // 成功時ログ（任意）
+            console.log("✅ ffmpeg 成功:", outputPath);
             resolve();
-          });
-          
+            });
         });
+
 
         results.push(`<li>✅ <a href="/videos/${filename}">${filename}</a></li>`);
       } catch (errMsg) {
