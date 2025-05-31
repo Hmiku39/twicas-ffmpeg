@@ -117,9 +117,10 @@ app.post('/download-multi', (req, res) => {
           const cmd = `ffmpeg -i "${meta.m3u8}" -c copy -bsf:a aac_adtstoasc "${outputPath}"`;
           exec(cmd, (error) => {
             if (error) return reject(`ffmpeg失敗：${url}`);
+            console.log("エラー:", error);
             resolve();
           });
-          console.log("エラー:", error);
+          
         });
 
         results.push(`<li>✅ <a href="/videos/${filename}">${filename}</a></li>`);
