@@ -18,7 +18,7 @@
   <div class="container">
     <h1 class="mb-4">YouTube 複数動画 一括ダウンローダー</h1>
 
-    <form method="POST" action="/youtube-download-multi">
+    <form method="POST" action="/youtube-download-multi" onsubmit="showLoading(this)">
       <div class="mb-3">
         <label for="urls" class="form-label">YouTube動画URL（1行に1つずつ）</label>
         <textarea name="urls" id="urls" class="form-control" rows="10" placeholder="https://www.youtube.com/watch?v=abc123&#10;https://www.youtube.com/watch?v=def456" required></textarea>
