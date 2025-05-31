@@ -119,6 +119,7 @@ app.post('/download-multi', (req, res) => {
             if (error) return reject(`ffmpeg失敗：${url}`);
             resolve();
           });
+          console.log("実行コマンド:", cmd);
         });
 
         results.push(`<li>✅ <a href="/videos/${filename}">${filename}</a></li>`);
@@ -185,13 +186,12 @@ app.post('/youtube-download-multi', (req, res) => {
 
         const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
 
-
-
         await new Promise((resolve, reject) => {
           exec(cmd, (error) => {
             if (error) return reject(`yt-dlp失敗：${url}`);
             resolve();
           });
+          console.log("実行コマンド:", cmd);
         });
 
         results.push(`<li>✅ <a href="/videos_youtube/${safeDate}_${safeTitle}.mp4">${safeDate}_${safeTitle}.mp4</a></li>`);
