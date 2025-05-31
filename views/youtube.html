@@ -24,7 +24,15 @@
         <textarea name="urls" id="urls" class="form-control" rows="10" placeholder="https://www.youtube.com/watch?v=abc123&#10;https://www.youtube.com/watch?v=def456" required></textarea>
       </div>
       <button type="submit" class="btn btn-danger">一括ダウンロード開始</button>
+      <p id="loading" style="display:none; color: green; font-weight: bold;">ダウンロード処理中...</p>
     </form>
+
+    <script>
+      function showLoading(form) {
+        form.querySelector('button[type="submit"]').disabled = true;
+        document.getElementById('loading').style.display = 'block';
+      }
+    </script>
 
     <hr class="my-5">
 

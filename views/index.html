@@ -25,7 +25,16 @@
         <textarea name="urls" id="urls" class="form-control" rows="10" placeholder="https://twitcasting.tv/user/movie/123456789&#10;https://twitcasting.tv/user/movie/987654321" required></textarea>
       </div>
       <button type="submit" class="btn btn-primary">一括ダウンロード開始</button>
+      <p id="loading" style="display:none; color: green; font-weight: bold;">ダウンロード処理中...</p>
     </form>
+
+    <script>
+      function showLoading(form) {
+        form.querySelector('button[type="submit"]').disabled = true;
+        document.getElementById('loading').style.display = 'block';
+      }
+  </script>
+
     <hr class="my-5">
 
     <p class="text-muted">入力されたURLごとにタイトル・投稿日を取得し、自動でMP4として保存します。</p>
