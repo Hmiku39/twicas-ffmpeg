@@ -165,6 +165,7 @@ app.post('/youtube-download-multi', (req, res) => {
   // 非同期IIFEで1件ずつ順次処理
   (async function processUrls() {
     for (const url of urls) {
+        const normalizedUrl = url.replace('youtube.com/shorts/', 'youtube.com/watch?v=');
       try {
         const meta = await new Promise((resolve, reject) => {
           exec(`yt-dlp -j "${url}"`, (error, stdout) => {
