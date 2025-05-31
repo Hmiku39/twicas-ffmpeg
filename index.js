@@ -188,7 +188,7 @@ app.post('/youtube-download-multi', (req, res) => {
         }
 
 
-        const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
+        const cmd = `yt-dlp -f bestvideo+bestaudio --no-cache-dir --no-check-certificate --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
 
 
 
