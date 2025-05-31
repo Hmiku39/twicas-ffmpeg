@@ -180,7 +180,9 @@ app.post('/youtube-download-multi', (req, res) => {
           fs.mkdirSync(outputDir);
         }
 
-        const cmd = `yt-dlp -o "${path.join(outputDir, filename)}" "${url}"`;
+        const cmd = `yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o "${path.join(outputDir, filename)}" "${url}"`;
+
+
 
         await new Promise((resolve, reject) => {
           exec(cmd, (error) => {
@@ -208,18 +210,27 @@ app.get('/videos/twicasting-list', (req, res) => {
   const dir = path.join(__dirname, 'videos');
   fs.readdir(dir, (err, files) => {
     if (err) return res.send('ディレクトリ読み込みエラー');
-    const mp4Files = files.filter(f => f.endsWith('.mp4'));
-    res.send(generateFileListHTML('/videos', mp4Files, 'TwitCasting'));
+
+    const videoFiles = files.filter(f =>
+      f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.mkv')
+    );
+
+    res.send(generateFileListHTML('/videos', videoFiles, 'TwitCasting'));
   });
 });
+
 
 // YouTube動画一覧
 app.get('/videos_youtube/list', (req, res) => {
   const dir = path.join(__dirname, 'videos_youtube');
   fs.readdir(dir, (err, files) => {
     if (err) return res.send('ディレクトリ読み込みエラー');
-    const mp4Files = files.filter(f => f.endsWith('.mp4'));
-    res.send(generateFileListHTML('/videos_youtube', mp4Files, 'YouTube'));
+
+    const videoFiles = files.filter(f =>
+      f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.mkv')
+    );
+
+    res.send(generateFileListHTML('/videos_youtube', videoFiles, 'YouTube'));
   });
 });
 
