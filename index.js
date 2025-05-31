@@ -119,7 +119,7 @@ app.post('/download-multi', (req, res) => {
             if (error) return reject(`ffmpeg失敗：${url}`);
             resolve();
           });
-          console.log("実行コマンド:", cmd);
+          console.log("エラー:", error);
         });
 
         results.push(`<li>✅ <a href="/videos/${filename}">${filename}</a></li>`);
@@ -191,7 +191,7 @@ app.post('/youtube-download-multi', (req, res) => {
             if (error) return reject(`yt-dlp失敗：${url}`);
             resolve();
           });
-          console.log("実行コマンド:", cmd);
+          console.log("エラー:", error);
         });
 
         results.push(`<li>✅ <a href="/videos_youtube/${safeDate}_${safeTitle}.mp4">${safeDate}_${safeTitle}.mp4</a></li>`);
