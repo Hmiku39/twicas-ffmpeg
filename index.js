@@ -181,21 +181,23 @@ app.get('/videos/twicasting-list', (req, res) => {
     });
 });
 
-
-// YouTube動画一覧
+// YouTube一覧（ダウンロード順）
 app.get('/videos_youtube/list', (req, res) => {
 //   const dir = path.join(__dirname, 'videos_youtube');
-    const dir = '/mnt/video_storage/youtube'; 
+    const dir = '/mnt/video_storage/youtube';
     fs.readdir(dir, (err, files) => {
         if (err) return res.send('ディレクトリ読み込みエラー');
 
-        const videoFiles = files.filter(f =>
-            f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.mkv')
-        );
+        const videoFiles = files
+        .filter(f => f.endsWith('.mp4') || f.endsWith('.webm') || f.endsWith('.mkv'))
+        .map(f => ({ name: f, time: fs.statSync(path.join(dir, f)).mtime }))
+        .sort((a, b) => b.time - a.time) // ← ここで新しい順にソート
+        .map(f => f.name);              // ← ソート後にファイル名だけに戻す
 
         res.send(generateFileListHTML('/videos_youtube', videoFiles, 'YouTube'));
     });
 });
+
 
 
 app.listen(PORT, () => console.log(`✅ 動画DLサーバー稼働中：http://localhost:${PORT}`));
